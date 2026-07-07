@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PoetryApiService } from '../poetry-api/poetry-api.service';
 import { SEED_POEMS } from '../seed/seed-data';
+import { normalizeToString } from '../poems/poems.service';
 
 @Injectable()
 export class SearchService {
@@ -84,16 +85,18 @@ export class SearchService {
           ? (author as Record<string, unknown>).name ?? ''
           : '';
 
+    const content = normalizeToString(p.content);
+
     return {
       id:
         (p.id as string) ??
         Buffer.from(`${p.title ?? ''}_${authorName}`).toString('base64').slice(0, 20),
       title: p.title ?? '',
       author: authorName,
-      dynasty: p.dynasty ?? '',
-      type: p.type ?? '',
-      content: p.content ?? '',
-      highlights: this.extractHighlights(p.content as string, searchQuery),
+      dynasty: normalizeToString(p.dynasty),
+      type: normalizeToString(p.type),
+      content,
+      highlights: this.extractHighlights(content, searchQuery),
     };
   }
 

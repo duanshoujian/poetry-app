@@ -2,6 +2,29 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PoetryApiService } from '../poetry-api/poetry-api.service';
 import { SEED_POEMS } from '../seed/seed-data';
 
+/**
+ * 诗泉 API 返回的字段类型不统一：
+ *  - content 可能是 string 或 string[]（多段落）
+ *  - dynasty / type 可能是 string 或 { name, ... } 对象
+ * 这里在 BFF 边界统一归一化为字符串，保证前端契约稳定。
+ */
+export function normalizeToString(value: unknown): string {
+  if (value === null || value === undefined) return '';
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value)) {
+    return value
+      .filter((item) => item !== null && item !== undefined)
+      .map((item) => (typeof item === 'string' || typeof item === 'number' ? String(item) : normalizeToString(item)))
+      .join('\n');
+  }
+  if (typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+    if (typeof obj.name === 'string') return obj.name;
+    return '';
+  }
+  return String(value);
+}
+
 @Injectable()
 export class PoemsService {
   private readonly logger = new Logger(PoemsService.name);
@@ -125,10 +148,10 @@ export class PoemsService {
     return {
       id: p.id ?? this.generateId(p),
       title: p.title ?? '',
-      content: p.content ?? '',
+      content: normalizeToString(p.content),
       author: this.normalizeAuthor(p.author),
-      dynasty: p.dynasty ?? '',
-      type: p.type ?? '',
+      dynasty: normalizeToString(p.dynasty),
+      type: normalizeToString(p.type),
       source: p.source ?? '',
       paragraphs: p.paragraphs ?? [],
       notes: p.notes ?? [],

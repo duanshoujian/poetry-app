@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { PoetryApiService } from '../poetry-api/poetry-api.service';
 import { SEED_AUTHORS, SEED_POEMS } from '../seed/seed-data';
+import { normalizeToString } from '../poems/poems.service';
 
 @Injectable()
 export class AuthorsService {
@@ -113,12 +114,13 @@ export class AuthorsService {
   private normalizePoem(poem: unknown): Record<string, unknown> {
     if (!poem || typeof poem !== 'object') return {};
     const p = poem as Record<string, unknown>;
+    const content = normalizeToString(p.content);
     return {
       id: p.id ?? '',
       title: p.title ?? '',
-      content: p.content ?? '',
-      dynasty: p.dynasty ?? '',
-      type: p.type ?? '',
+      content: content.split('\n')[0] || content, // 首句预览
+      dynasty: normalizeToString(p.dynasty),
+      type: normalizeToString(p.type),
     };
   }
 }

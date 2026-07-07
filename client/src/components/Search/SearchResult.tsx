@@ -26,7 +26,7 @@ function highlightText(text: string, keyword: string): React.ReactNode {
 export default function SearchResult({ poem, keyword }: SearchResultProps) {
   return (
     <Link
-      to={`/poem/${encodeURIComponent(poem.id)}`}
+      to={`/poem/${encodeURIComponent(poem.title || poem.id)}`}
       className="block no-underline text-inherit px-6 py-5 rounded-xl transition-all duration-[250ms] ease-in-out mb-[1px] cursor-pointer group relative"
     >
       <h3 className="font-serif text-lg font-semibold text-[var(--color-text-primary)] mb-1 transition-colors duration-[150ms] group-hover:text-[var(--color-accent)]">

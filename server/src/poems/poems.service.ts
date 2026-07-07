@@ -91,22 +91,31 @@ export class PoemsService {
     return shuffled.slice(0, 8).map(p => this.formatSeedPoem(p));
   }
 
-  async findOne(title: string) {
+  async findOne(identifier: string) {
+    // 诗泉没有「按 id 取单首」的接口，详情页改用标题检索（id 为译名，title 为稳定可搜字段）
+    let decoded = identifier;
+    try {
+      decoded = decodeURIComponent(identifier);
+    } catch {
+      /* identifier 已为明文 */
+    }
     try {
       const data = await this.poetryApiService.searchPoems({
-        q: title,
+        q: decoded,
         type: 'title',
       });
       const results = this.formatPoemsResponse(data, 1, 10);
       if (results.poems && results.poems.length > 0) {
-        return results.poems[0];
+        // 优先精确匹配标题，避免同名诗取到非预期一首
+        const exact = results.poems.find((p) => p.title === decoded);
+        return exact ?? results.poems[0];
       }
     } catch {
-      this.logger.warn(`诗泉 API 不可用，从种子数据查找: ${title}`);
+      this.logger.warn(`诗泉 API 不可用，从种子数据查找: ${decoded}`);
     }
-    // 从种子数据查找
+    // 从种子数据查找（兼容 base64 id 或标题）
     const seed = SEED_POEMS.find(
-      p => p.title === title || p.id === title || decodeURIComponent(title) === p.title,
+      (p) => p.title === decoded || p.id === identifier || p.id === decoded,
     );
     return seed ? this.formatSeedPoem(seed) : null;
   }

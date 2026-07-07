@@ -43,7 +43,7 @@ export default function HomePage() {
               </Link>
               <span className="w-[3px] h-[3px] rounded-full bg-[var(--color-border)]" />
               <Link
-                to={`/poem/${encodeURIComponent(randomPoem.id)}`}
+                to={`/poem/${encodeURIComponent(randomPoem.title || randomPoem.id)}`}
                 className="font-serif italic text-[var(--color-text-secondary)] no-underline hover:text-[var(--color-accent)] transition-colors"
               >
                 {randomPoem.title}

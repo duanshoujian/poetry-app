@@ -8,7 +8,7 @@ interface PoemCardProps {
 export default function PoemCard({ poem }: PoemCardProps) {
   return (
     <Link
-      to={`/poem/${encodeURIComponent(poem.id)}`}
+      to={`/poem/${encodeURIComponent(poem.title || poem.id)}`}
       className="block bg-[var(--color-bg-card)] border border-transparent rounded-xl p-7 pb-6 cursor-pointer transition-all duration-[250ms] ease-in-out flex flex-col min-h-[180px] relative overflow-hidden no-underline text-inherit group"
     >
       <span className="absolute top-0 left-0 w-full h-[3px] bg-[var(--color-accent)] scale-x-0 origin-left transition-transform duration-[250ms] ease-in-out rounded-b-[2px] group-hover:scale-x-100" />

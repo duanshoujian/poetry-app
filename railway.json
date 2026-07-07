@@ -2,7 +2,8 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "rootDirectory": "server",
-    "builder": "NIXPACKS"
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "server/Dockerfile"
   },
   "deploy": {
     "startCommand": "node dist/main",

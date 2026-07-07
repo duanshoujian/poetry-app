@@ -1,4 +1,3 @@
-# Vercel 配置 - SPA fallback + API 代理
 {
   "rewrites": [
     { "source": "/((?!api).*)", "destination": "/index.html" }

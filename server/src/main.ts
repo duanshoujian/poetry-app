@@ -20,10 +20,10 @@ async function bootstrap() {
     }),
   );
 
-  // 全链路固定 3000：应用监听、Dockerfile EXPOSE、railway.json port 三者一致，
-  // 不依赖 Railway 动态注入的 PORT（该值与服务实际监听端口错配会导致外部 000）。
-  const port = 3000;
-  await app.listen(port, '0.0.0.0');
+  // 必须监听 Railway 注入的 PORT：Railway 的健康检查与外部路由都使用该端口，
+  // 硬编码其他端口会导致健康检查失败（Deploy failed）。
+  const port = process.env.PORT ?? 3000;
+  await app.listen(port);
   console.log(`诗词鉴赏 API 服务已启动: http://localhost:${port}`);
 }
 bootstrap();

@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>静夜思 - 诗词鉴赏</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    /* ===== Reset & Base ===== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #FAFAF9;
+      --bg-card: #FFFFFF;
+      --text-primary: #1C1917;
+      --text-secondary: #78716C;
+      --text-tertiary: #A8A29E;
+      --accent: #DC2626;
+      --accent-hover: #B91C1C;
+      --border: #E7E5E4;
+      --divider: #F0EFED;
+      --shadow-sm: 0 1px 2px rgba(28, 25, 23, 0.04);
+      --shadow-md: 0 4px 16px rgba(28, 25, 23, 0.06);
+      --shadow-lg: 0 12px 40px rgba(28, 25, 23, 0.08);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --font-serif: 'Noto Serif SC', 'SimSun', 'STSong', serif;
+      --font-sans: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      --transition: 300ms ease;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ===== Navbar ===== */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(250, 250, 249, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .navbar-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 32px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .navbar-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px 8px 8px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+      background: none;
+      font-family: var(--font-sans);
+      text-decoration: none;
+    }
+
+    .navbar-back:hover {
+      color: var(--text-primary);
+      background: var(--divider);
+    }
+
+    .navbar-back svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      transition: transform var(--transition);
+    }
+
+    .navbar-back:hover svg {
+      transform: translateX(-2px);
+    }
+
+    .navbar-logo {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: 0.02em;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .navbar-logo span {
+      color: var(--accent);
+    }
+
+    .navbar-search {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      margin: 0 32px;
+    }
+
+    .navbar-search input {
+      width: 100%;
+      height: 40px;
+      padding: 0 16px 0 40px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--bg-primary);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: var(--text-primary);
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .navbar-search input::placeholder {
+      color: var(--text-tertiary);
+      font-weight: 300;
+    }
+
+    .navbar-search input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+    }
+
+    .navbar-search .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      pointer-events: none;
+    }
+
+    .navbar-search .search-icon svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--text-secondary);
+    }
+
+    .navbar-spacer {
+      width: 80px;
+    }
+
+    /* ===== Main Content ===== */
+    .main-content {
+      flex: 1;
+    }
+
+    /* ===== Content Wrapper ===== */
+    .content-wrapper {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 32px 80px;
+    }
+
+    /* ===== Poem Header ===== */
+    .poem-header {
+      text-align: center;
+      padding: 64px 0 48px;
+    }
+
+    .poem-title {
+      font-family: var(--font-serif);
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: 0.06em;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+
+    .poem-meta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-size: 15px;
+      color: var(--text-secondary);
+      font-weight: 300;
+    }
+
+    .poem-meta .dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+
+    .poem-meta .poem-type {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 12px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+      background: rgba(220, 38, 38, 0.06);
+      border: 1px solid rgba(220, 38, 38, 0.12);
+    }
+
+    /* ===== Poem Content Card ===== */
+    .poem-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 48px 56px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .poem-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--accent);
+      opacity: 0.6;
+    }
+
+    .poem-text {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-primary);
+      line-height: 2;
+      letter-spacing: 0.1em;
+      text-align: center;
+    }
+
+    .poem-text p {
+      margin-bottom: 0;
+    }
+
+    /* ===== Author Card ===== */
+    .author-card {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 24px 28px;
+      margin-bottom: 32px;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+
+    .author-card:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .author-card:hover .author-arrow {
+      color: var(--accent);
+      transform: translateX(2px);
+    }
+
+    .author-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(220, 38, 38, 0.05));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-serif);
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .author-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .author-name-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .author-name {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: 0.04em;
+    }
+
+    .author-title-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 10px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+      background: rgba(220, 38, 38, 0.06);
+      font-family: var(--font-sans);
+    }
+
+    .author-dynasty {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      margin-bottom: 4px;
+    }
+
+    .author-bio {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    .author-arrow {
+      width: 20px;
+      height: 20px;
+      color: var(--text-tertiary);
+      transition: var(--transition);
+      flex-shrink: 0;
+    }
+
+    /* ===== Tab Section ===== */
+    .tab-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tab-header {
+      display: flex;
+      border-bottom: 1px solid var(--divider);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 16px 24px;
+      background: none;
+      border: none;
+      font-family: var(--font-sans);
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      letter-spacing: 0.04em;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-primary);
+      background: rgba(28, 25, 23, 0.02);
+    }
+
+    .tab-btn.active {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 32px;
+      height: 3px;
+      border-radius: 2px 2px 0 0;
+      background: var(--accent);
+    }
+
+    .tab-content-wrapper {
+      position: relative;
+    }
+
+    .tab-panel {
+      display: none;
+      padding: 36px 40px;
+      animation: fadeSlideIn var(--transition) forwards;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .tab-panel p {
+      font-size: 15px;
+      line-height: 2;
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-weight: 300;
+    }
+
+    .tab-panel .annotation-item {
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--divider);
+    }
+
+    .tab-panel .annotation-item:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .annotation-word {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 10px;
+      border-radius: 4px;
+      font-family: var(--font-serif);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--accent);
+      background: rgba(220, 38, 38, 0.06);
+      margin-right: 12px;
+    }
+
+    .annotation-meaning {
+      display: inline;
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 300;
+    }
+
+    .appreciation-block {
+      margin-bottom: 24px;
+    }
+
+    .appreciation-block:last-child {
+      margin-bottom: 0;
+    }
+
+    .appreciation-block h4 {
+      font-family: var(--font-sans);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      letter-spacing: 0.03em;
+    }
+
+    .appreciation-block p {
+      font-size: 14px;
+      line-height: 1.9;
+      color: var(--text-secondary);
+      font-weight: 300;
+    }
+
+    /* ===== Bottom Actions ===== */
+    .bottom-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 32px;
+      padding-top: 32px;
+      border-top: 1px solid var(--divider);
+    }
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: var(--font-sans);
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+    }
+
+    .action-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(220, 38, 38, 0.04);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .action-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+    }
+
+    .action-btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .action-btn.primary:hover {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      padding: 12px 28px;
+      border-radius: 100px;
+      background: var(--text-primary);
+      color: #fff;
+      font-size: 14px;
+      font-family: var(--font-sans);
+      font-weight: 400;
+      opacity: 0;
+      pointer-events: none;
+      transition: var(--transition);
+      z-index: 1000;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ===== Footer ===== */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 32px;
+      text-align: center;
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .footer-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-weight: 300;
+      letter-spacing: 0.02em;
+    }
+
+    .footer-text .footer-accent {
+      color: var(--accent);
+      font-family: var(--font-serif);
+      font-weight: 500;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+      .navbar-search {
+        display: none;
+      }
+
+      .content-wrapper {
+        padding: 0 20px 60px;
+      }
+
+      .poem-header {
+        padding: 40px 0 32px;
+      }
+
+      .poem-title {
+        font-size: 28px;
+      }
+
+      .poem-card {
+        padding: 36px 28px;
+      }
+
+      .poem-text {
+        font-size: 18px;
+      }
+
+      .tab-panel {
+        padding: 28px 24px;
+      }
+
+      .author-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 28px 20px;
+      }
+
+      .author-name-row {
+        justify-content: center;
+      }
+
+      .author-arrow {
+        display: none;
+      }
+
+      .bottom-actions {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .action-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Navbar ===== -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="index.html" class="navbar-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5"/>
+          <path d="M12 19l-7-7 7-7"/>
+        </svg>
+        返回
+      </a>
+      <a href="index.html" class="navbar-logo">诗词<span>鉴赏</span></a>
+      <div class="navbar-search">
+        <span class="search-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="M21 21l-4.35-4.35"/>
+          </svg>
+        </span>
+        <input type="text" placeholder="搜索诗词、作者、名句...">
+      </div>
+      <div class="navbar-spacer"></div>
+    </div>
+  </nav>
+
+  <!-- ===== Main Content ===== -->
+  <main class="main-content">
+    <div class="content-wrapper">
+
+      <!-- Poem Header -->
+      <div class="poem-header">
+        <h1 class="poem-title">静夜思</h1>
+        <div class="poem-meta">
+          <span>李白</span>
+          <span class="dot"></span>
+          <span>唐</span>
+          <span class="dot"></span>
+          <span class="poem-type">五言绝句</span>
+        </div>
+      </div>
+
+      <!-- Poem Content -->
+      <div class="poem-card">
+        <div class="poem-text">
+          <p>床 前 明 月 光，</p>
+          <p>疑 是 地 上 霜。</p>
+          <p>举 头 望 明 月，</p>
+          <p>低 头 思 故 乡。</p>
+        </div>
+      </div>
+
+      <!-- Author Card -->
+      <div class="author-card" id="authorCard">
+        <div class="author-avatar">李</div>
+        <div class="author-info">
+          <div class="author-name-row">
+            <span class="author-name">李白</span>
+            <span class="author-title-tag">诗仙</span>
+          </div>
+          <div class="author-dynasty">唐代 · 701年—762年</div>
+          <p class="author-bio">
+            字太白，号青莲居士，又号"谪仙人"。唐代伟大的浪漫主义诗人，被后人誉为"诗仙"，与杜甫并称为"李杜"。
+          </p>
+        </div>
+        <svg class="author-arrow" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
+      </div>
+
+      <!-- Tab Section -->
+      <div class="tab-section">
+        <div class="tab-header">
+          <button class="tab-btn active" data-tab="translation">译文</button>
+          <button class="tab-btn" data-tab="annotation">注释</button>
+          <button class="tab-btn" data-tab="appreciation">赏析</button>
+        </div>
+        <div class="tab-content-wrapper">
+          <!-- Translation -->
+          <div class="tab-panel active" id="panel-translation">
+            <p>明亮的月光洒在床前的窗户纸上，</p>
+            <p>好像地上泛起了一层白霜。</p>
+            <p>我禁不住抬起头来，看那天窗外空中的一轮明月，</p>
+            <p>不由得低头沉思，想起远方的家乡。</p>
+          </div>
+          <!-- Annotation -->
+          <div class="tab-panel" id="panel-annotation">
+            <div class="annotation-item">
+              <span class="annotation-word">静夜思</span>
+              <span class="annotation-meaning">在静静的夜晚所引起的思念。</span>
+            </div>
+            <div class="annotation-item">
+              <span class="annotation-word">疑</span>
+              <span class="annotation-meaning">好像，以为。</span>
+            </div>
+            <div class="annotation-item">
+              <span class="annotation-word">举头</span>
+              <span class="annotation-meaning">抬头。</span>
+            </div>
+            <div class="annotation-item">
+              <span class="annotation-word">思</span>
+              <span class="annotation-meaning">思念，想念。</span>
+            </div>
+          </div>
+          <!-- Appreciation -->
+          <div class="tab-panel" id="panel-appreciation">
+            <div class="appreciation-block">
+              <h4>意境</h4>
+              <p>
+                这首诗写的是在寂静的月夜思念家乡的感受。诗的前两句，写诗人在作客他乡的特定环境中一刹那间所产生的错觉。一个独处他乡的人，白天奔波忙碌，倒还能冲淡离愁，然而一到夜深人静的时候，心头就难免泛起阵阵思念故乡的波澜。
+              </p>
+            </div>
+            <div class="appreciation-block">
+              <h4>语言</h4>
+              <p>
+                全诗从"疑"到"举头"，从"举头"到"低头"，形象地揭示了诗人内心活动，鲜明地勾勒出一幅生动形象的月夜思乡图。语言清新朴素而韵味含蓄无穷，历来广为传诵。
+              </p>
+            </div>
+            <div class="appreciation-block">
+              <h4>影响</h4>
+              <p>
+                《静夜思》是唐代诗人李白最为人熟知的作品之一，语言简练而意蕴深远，以明月为媒介，将思乡之情表达得淋漓尽致，成为千古传诵的名篇。
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Actions -->
+      <div class="bottom-actions">
+        <button class="action-btn" id="copyLinkBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+          </svg>
+          复制链接
+        </button>
+        <button class="action-btn" id="shareBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3"/>
+            <circle cx="6" cy="12" r="3"/>
+            <circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+          分享
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <p class="footer-text">
+        &copy; 2026 <span class="footer-accent">诗词鉴赏</span> &mdash; 品味千年文脉，感受诗词之美
+      </p>
+    </div>
+  </footer>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Tab switching
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetTab = btn.dataset.tab;
+
+        // Update buttons
+        tabBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Update panels
+        tabPanels.forEach(panel => {
+          panel.classList.remove('active');
+          if (panel.id === `panel-${targetTab}`) {
+            panel.classList.add('active');
+          }
+        });
+      });
+    });
+
+    // Toast helper
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toast._timeout);
+      toast._timeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+
+    // Copy link
+    document.getElementById('copyLinkBtn').addEventListener('click', () => {
+      const url = window.location.href;
+      navigator.clipboard.writeText(url).then(() => {
+        showToast('链接已复制到剪贴板');
+      }).catch(() => {
+        showToast('复制失败，请重试');
+      });
+    });
+
+    // Share
+    document.getElementById('shareBtn').addEventListener('click', () => {
+      const url = window.location.href;
+      const title = '静夜思 - 李白 | 诗词鉴赏';
+      if (navigator.share) {
+        navigator.share({ title, url }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(url).then(() => {
+          showToast('链接已复制，可粘贴分享给好友');
+        }).catch(() => {
+          showToast('分享失败，请重试');
+        });
+      }
+    });
+
+    // Author card click
+    document.getElementById('authorCard').addEventListener('click', () => {
+      showToast('查看作者详情（功能开发中）');
+    });
+  </script>
+
+</body>
+</html>

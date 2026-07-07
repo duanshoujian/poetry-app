@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>诗词鉴赏 - 诗词列表 &amp; 搜索</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+/* ========================================
+   CSS Reset & Variables
+   ======================================== */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-main: #FAFAF9;
+  --bg-card: #FFFFFF;
+  --text-primary: #1C1917;
+  --text-secondary: #78716C;
+  --text-tertiary: #A8A29E;
+  --accent: #DC2626;
+  --accent-light: #FEE2E2;
+  --accent-hover: #B91C1C;
+  --border: #E7E5E4;
+  --border-light: #F0EFED;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.08);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --font-ui: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-poetry: 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --sidebar-width: 220px;
+}
+
+body {
+  font-family: var(--font-ui);
+  background: var(--bg-main);
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+/* ========================================
+   Header / Navigation
+   ======================================== */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(250, 250, 249, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+}
+
+.header-inner {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.logo {
+  font-family: var(--font-poetry);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-decoration: none;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+}
+
+.logo .accent-dot {
+  color: var(--accent);
+  font-size: 28px;
+  line-height: 1;
+  margin-left: 2px;
+}
+
+.search-box {
+  flex: 1;
+  max-width: 520px;
+  position: relative;
+}
+
+.search-box input {
+  width: 100%;
+  height: 42px;
+  padding: 0 48px 0 18px;
+  border: 1.5px solid var(--border);
+  border-radius: 21px;
+  background: var(--bg-card);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--text-primary);
+  outline: none;
+  transition: all var(--transition-smooth);
+}
+
+.search-box input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.search-box input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+}
+
+.search-box .search-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: var(--text-tertiary);
+  pointer-events: none;
+  transition: color var(--transition-fast);
+}
+
+.search-box input:focus ~ .search-icon {
+  color: var(--accent);
+}
+
+.search-box .clear-btn {
+  position: absolute;
+  right: 42px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: var(--border);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all var(--transition-fast);
+}
+
+.search-box .clear-btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.search-box .clear-btn:hover {
+  background: var(--text-tertiary);
+  color: #fff;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.nav-link {
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.nav-link:hover {
+  color: var(--text-primary);
+  background: var(--border-light);
+}
+
+.nav-link.active {
+  color: var(--accent);
+  background: var(--accent-light);
+  font-weight: 500;
+}
+
+/* ========================================
+   Page Toggle Tabs (for prototype)
+   ======================================== */
+.page-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--border-light);
+  border-radius: 8px;
+  padding: 3px;
+  margin-right: 12px;
+}
+
+.page-tab {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  padding: 4px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-family: var(--font-ui);
+}
+
+.page-tab.active {
+  background: var(--bg-card);
+  color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ========================================
+   Main Layout
+   ======================================== */
+.page-container {
+  display: flex;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 40px;
+  gap: 40px;
+  min-height: calc(100vh - 64px);
+}
+
+/* ========================================
+   Sidebar - Filter Panel
+   ======================================== */
+.sidebar {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  position: sticky;
+  top: 96px;
+  align-self: flex-start;
+  max-height: calc(100vh - 128px);
+  overflow-y: auto;
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+.filter-section {
+  margin-bottom: 28px;
+}
+
+.filter-section:last-child {
+  margin-bottom: 0;
+}
+
+.filter-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 12px;
+}
+
+.filter-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.filter-tag {
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 5px 14px;
+  cursor: pointer;
+  transition: all var(--transition-smooth);
+  font-family: var(--font-ui);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.filter-tag:hover {
+  border-color: var(--text-tertiary);
+  color: var(--text-primary);
+  background: #FAFAFA;
+}
+
+.filter-tag.active {
+  color: var(--accent);
+  background: var(--accent-light);
+  border-color: var(--accent);
+  font-weight: 500;
+}
+
+.filter-tag .check-mark {
+  display: inline-block;
+  margin-left: 2px;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all var(--transition-smooth);
+}
+
+.filter-tag.active .check-mark {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.author-search {
+  width: 100%;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  color: var(--text-primary);
+  outline: none;
+  background: var(--bg-card);
+  margin-bottom: 10px;
+  transition: border-color var(--transition-fast);
+}
+
+.author-search:focus {
+  border-color: var(--accent);
+}
+
+.author-search::placeholder {
+  color: var(--text-tertiary);
+}
+
+.author-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.clear-filters {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  margin-top: 6px;
+  padding: 2px 0;
+  transition: color var(--transition-fast);
+  background: none;
+  border: none;
+  font-family: var(--font-ui);
+}
+
+.clear-filters:hover {
+  color: var(--accent);
+}
+
+.clear-filters svg {
+  width: 12px;
+  height: 12px;
+}
+
+.active-filter-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 50%;
+  margin-left: 4px;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: all var(--transition-smooth);
+}
+
+.active-filter-count.show {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ========================================
+   Content Area
+   ======================================== */
+.content-area {
+  flex: 1;
+  min-width: 0;
+}
+
+.results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.results-count {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.results-count strong {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-family: var(--font-ui);
+}
+
+.sort-options {
+  display: flex;
+  gap: 4px;
+}
+
+.sort-btn {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+  background: none;
+  border: none;
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  font-family: var(--font-ui);
+}
+
+.sort-btn:hover {
+  color: var(--text-secondary);
+}
+
+.sort-btn.active {
+  color: var(--accent);
+  background: var(--accent-light);
+  font-weight: 500;
+}
+
+/* ========================================
+   Poetry Cards
+   ======================================== */
+.poetry-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.poetry-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  padding: 20px 24px;
+  border-radius: var(--radius-md);
+  position: relative;
+  transition: all var(--transition-smooth);
+  border-left: 3px solid transparent;
+  margin-bottom: 1px;
+  cursor: pointer;
+}
+
+.poetry-card:hover {
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+  border-left-color: var(--accent);
+}
+
+.poetry-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 24px;
+  right: 24px;
+  height: 1px;
+  background: var(--border-light);
+  transition: background var(--transition-fast);
+}
+
+.poetry-card:hover::after {
+  background: transparent;
+}
+
+.poetry-card:last-child::after {
+  display: none;
+}
+
+.poetry-card .card-title {
+  font-family: var(--font-poetry);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  line-height: 1.4;
+  transition: color var(--transition-fast);
+}
+
+.poetry-card:hover .card-title {
+  color: var(--accent);
+}
+
+.poetry-card .card-meta {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.poetry-card .card-meta .dot {
+  width: 3px;
+  height: 3px;
+  background: var(--text-tertiary);
+  border-radius: 50%;
+}
+
+.poetry-card .card-preview {
+  font-family: var(--font-poetry);
+  font-size: 14px;
+  color: var(--text-tertiary);
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.poetry-card .card-tag {
+  display: inline-block;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  background: var(--border-light);
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 8px;
+  font-family: var(--font-ui);
+}
+
+/* ========================================
+   Load More
+   ======================================== */
+.load-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.load-more-btn {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: 24px;
+  padding: 10px 36px;
+  cursor: pointer;
+  transition: all var(--transition-smooth);
+  font-family: var(--font-ui);
+  letter-spacing: 0.02em;
+}
+
+.load-more-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.08);
+}
+
+.load-more-btn:active {
+  transform: scale(0.97);
+}
+
+/* ========================================
+   Search Page Specific
+   ======================================== */
+.search-page {
+  display: none;
+}
+
+.search-page.active {
+  display: flex;
+}
+
+.list-page {
+  display: flex;
+}
+
+.list-page.hidden {
+  display: none;
+}
+
+.search-info {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+}
+
+.search-info strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Search Result Items */
+.search-result-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.search-result-item {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  padding: 20px 24px;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-smooth);
+  margin-bottom: 1px;
+  cursor: pointer;
+}
+
+.search-result-item:hover {
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.search-result-item::after {
+  content: '';
+  display: block;
+  height: 1px;
+  background: var(--border-light);
+  margin-top: 20px;
+}
+
+.search-result-item:last-child::after {
+  display: none;
+}
+
+.search-result-item .result-title {
+  font-family: var(--font-poetry);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  transition: color var(--transition-fast);
+}
+
+.search-result-item:hover .result-title {
+  color: var(--accent);
+}
+
+.search-result-item .result-meta {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.search-result-item .result-snippet {
+  font-family: var(--font-poetry);
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+mark, .highlight {
+  background: transparent;
+  color: var(--accent);
+  font-weight: 600;
+  padding: 0 1px;
+}
+
+/* Empty State */
+.empty-state {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 40px;
+  text-align: center;
+}
+
+.empty-state.visible {
+  display: flex;
+}
+
+.empty-icon {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 24px;
+  color: var(--text-tertiary);
+  opacity: 0.5;
+}
+
+.empty-state h3 {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  font-family: var(--font-poetry);
+}
+
+.empty-state p {
+  font-size: 14px;
+  color: var(--text-tertiary);
+}
+
+.empty-state .empty-keyword {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* ========================================
+   Footer
+   ======================================== */
+.site-footer {
+  border-top: 1px solid var(--border);
+  padding: 24px 40px;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+  background: var(--bg-main);
+}
+
+/* ========================================
+   Animations
+   ======================================== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.poetry-card, .search-result-item {
+  animation: fadeInUp 0.4s ease backwards;
+}
+
+.poetry-card:nth-child(1) { animation-delay: 0.02s; }
+.poetry-card:nth-child(2) { animation-delay: 0.06s; }
+.poetry-card:nth-child(3) { animation-delay: 0.10s; }
+.poetry-card:nth-child(4) { animation-delay: 0.14s; }
+.poetry-card:nth-child(5) { animation-delay: 0.18s; }
+.poetry-card:nth-child(6) { animation-delay: 0.22s; }
+.poetry-card:nth-child(7) { animation-delay: 0.26s; }
+.poetry-card:nth-child(8) { animation-delay: 0.30s; }
+
+.search-result-item:nth-child(1) { animation-delay: 0.02s; }
+.search-result-item:nth-child(2) { animation-delay: 0.06s; }
+.search-result-item:nth-child(3) { animation-delay: 0.10s; }
+.search-result-item:nth-child(4) { animation-delay: 0.14s; }
+.search-result-item:nth-child(5) { animation-delay: 0.18s; }
+.search-result-item:nth-child(6) { animation-delay: 0.22s; }
+
+/* Loading shimmer */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--border-light) 25%, var(--border) 50%, var(--border-light) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+/* Scrollbar */
+.content-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.content-area::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+/* Selection */
+::selection {
+  background: rgba(220, 38, 38, 0.15);
+  color: var(--text-primary);
+}
+</style>
+</head>
+<body>
+
+<!-- ========================================
+     Header
+     ======================================== -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="#" class="logo">诗词鉴赏<span class="accent-dot">.</span></a>
+
+    <div class="page-tabs" id="pageTabs">
+      <button class="page-tab active" data-page="list">诗词列表</button>
+      <button class="page-tab" data-page="search">搜索</button>
+    </div>
+
+    <div class="search-box">
+      <input type="text" id="mainSearch" placeholder="搜索诗词、作者、内容...">
+      <button class="clear-btn" id="mainSearchClear" title="清除">&times;</button>
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="M21 21l-4.35-4.35"/>
+      </svg>
+    </div>
+
+    <nav class="nav-actions">
+      <a href="#" class="nav-link active">诗词</a>
+      <a href="#" class="nav-link">作者</a>
+      <a href="#" class="nav-link">关于</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ========================================
+     Page 1: Poetry List Page
+     ======================================== -->
+<div class="page-container list-page" id="listPage">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <!-- Dynasty Filter -->
+    <div class="filter-section">
+      <div class="filter-title">朝代</div>
+      <div class="filter-tags" data-filter-group="dynasty">
+        <span class="filter-tag active" data-value="all">全部 <span class="check-mark">&#10003;</span></span>
+        <span class="filter-tag" data-value="tang">唐代 <span class="check-mark">&#10003;</span></span>
+        <span class="filter-tag" data-value="song">宋代 <span class="check-mark">&#10003;</span></span>
+        <span class="filter-tag" data-value="yuan">元代 <span class="check-mark">&#10003;</span></span>
+        <span class="filter-tag" data-value="ming">明代 <span class="check-mark">&#10003;</span></span>
+        <span class="filter-tag" data-value="qing">清代 <span class="check-mark">&#10003;</span></span>
+      </div>
+    </div>
+
+    <!-- Type Filter -->
+    <div class="filter-section">
+      <div class="filter-title">类型</div>
+      <div class="filter-tags" data-filter-group="type">
+        <span class="filter-tag active" data-value="all">全部 <span class="check-mark">&#10003;</span></span>
+        <span class="filter-tag" data-value="wuyan-jueju">五言绝句 <span class="check-mark">&#10003;</span></span>
+        <span class="filter-tag" data-value="qiyan-jueju">七言绝句 <span class="check-mark">&#10003;</span></span>
+        <span class="filter-tag" data-value="wuyan-lvshi">五言律诗 <span class="check-mark">&#10003;</span></span>
+        <span class="filter-tag" data-value="qiyan-lvshi">七言律诗 <span class="check-mark">&#10003;</span></span>
+        <span class="filter-tag" data-value="yuefu">乐府诗 <span class="check-mark">&#10003;</span></span>
+        <span class="filter-tag" data-value="songci">宋词 <span class="check-mark">&#10003;</span></span>
+        <span class="filter-tag" data-value="yuanqu">元曲 <span class="check-mark">&#10003;</span></span>
+      </div>
+    </div>
+
+    <!-- Author Filter -->
+    <div class="filter-section">
+      <div class="filter-title">作者</div>
+      <input type="text" class="author-search" id="authorSearch" placeholder="搜索作者...">
+      <div class="filter-tags" data-filter-group="author">
+        <span class="filter-tag active" data-value="all">全部 <span class="check-mark">&#10003;</span></span>
+        <span class="filter-tag" data-value="libai">李白 <span class="check-mark">&#10003;</span></span>
+        <span class="filter-tag" data-value="dufu">杜甫 <span class="check-mark">&#10003;</span></span>
+        <span class="filter-tag" data-value="baijuyi">白居易 <span class="check-mark">&#10003;</span></span>
+        <span class="filter-tag" data-value="wangwei">王维 <span class="check-mark">&#10003;</span></span>
+        <span class="filter-tag" data-value="sushi">苏轼 <span class="check-mark">&#10003;</span></span>
+        <span class="filter-tag" data-value="liqingzhao">李清照 <span class="check-mark">&#10003;</span></span>
+        <span class="filter-tag" data-value="xinqiji">辛弃疾 <span class="check-mark">&#10003;</span></span>
+        <span class="filter-tag" data-value="dumu">杜牧 <span class="check-mark">&#10003;</span></span>
+        <span class="filter-tag" data-value="lishangyin">李商隐 <span class="check-mark">&#10003;</span></span>
+      </div>
+      <button class="clear-filters" id="clearAllFilters">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        清除筛选
+        <span class="active-filter-count" id="activeFilterCount">0</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Content -->
+  <main class="content-area">
+    <div class="results-header">
+      <span class="results-count">共 <strong>85,032</strong> 首</span>
+      <div class="sort-options">
+        <button class="sort-btn active">默认排序</button>
+        <button class="sort-btn">最多人读</button>
+        <button class="sort-btn">最新收录</button>
+      </div>
+    </div>
+
+    <div class="poetry-list" id="poetryList">
+      <!-- Cards will be rendered by JS -->
+    </div>
+
+    <div class="load-more">
+      <button class="load-more-btn" id="loadMoreBtn">加载更多</button>
+    </div>
+  </main>
+</div>
+
+<!-- ========================================
+     Page 2: Search Page
+     ======================================== -->
+<div class="page-container search-page" id="searchPage">
+  <main class="content-area" style="max-width: 800px; margin: 0 auto;">
+    <!-- Search Info -->
+    <div class="search-info">
+      搜索 <strong>"明月"</strong> 共找到 <strong>24</strong> 首诗词
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" id="emptyState">
+      <svg class="empty-icon" viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="35" cy="35" r="18"/>
+        <line x1="48" y1="48" x2="68" y2="68" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="28" y1="35" x2="42" y2="35" stroke-width="2" stroke-linecap="round"/>
+        <line x1="35" y1="28" x2="35" y2="42" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <h3>未找到包含<span class="empty-keyword">「XXX」</span>的诗词</h3>
+      <p>试试其他关键词</p>
+    </div>
+
+    <!-- Search Results -->
+    <div class="search-result-list" id="searchResultList">
+      <!-- Results will be rendered by JS -->
+    </div>
+  </main>
+</div>
+
+<!-- ========================================
+     Footer
+     ======================================== -->
+<footer class="site-footer">
+  &copy; 2026 诗词鉴赏. All rights reserved.
+</footer>
+
+<script>
+/* ========================================
+   Poetry Data
+   ======================================== */
+const poetryData = [
+  { title: '静夜思', author: '李白', dynasty: '唐代', type: '五言绝句', preview: '床前明月光，疑是地上霜。举头望明月，低头思故乡。', content: '床前明月光，疑是地上霜。\n举头望明月，低头思故乡。' },
+  { title: '登高', author: '杜甫', dynasty: '唐代', type: '七言律诗', preview: '风急天高猿啸哀，渚清沙白鸟飞回。无边落木萧萧下...', content: '风急天高猿啸哀，渚清沙白鸟飞回。\n无边落木萧萧下，不尽长江滚滚来。\n万里悲秋常作客，百年多病独登台。\n艰难苦恨繁霜鬓，潦倒新停浊酒杯。' },
+  { title: '水调歌头·明月几时有', author: '苏轼', dynasty: '宋代', type: '宋词', preview: '明月几时有？把酒问青天。不知天上宫阙，今夕是何年...', content: '明月几时有？把酒问青天。\n不知天上宫阙，今夕是何年。\n我欲乘风归去，又恐琼楼玉宇，高处不胜寒。\n起舞弄清影，何似在人间。' },
+  { title: '山居秋暝', author: '王维', dynasty: '唐代', type: '五言律诗', preview: '空山新雨后，天气晚来秋。明月松间照，清泉石上流...', content: '空山新雨后，天气晚来秋。\n明月松间照，清泉石上流。\n竹喧归浣女，莲动下渔舟。\n随意春芳歇，王孙自可留。' },
+  { title: '声声慢·寻寻觅觅', author: '李清照', dynasty: '宋代', type: '宋词', preview: '寻寻觅觅，冷冷清清，凄凄惨惨戚戚。乍暖还寒时候...', content: '寻寻觅觅，冷冷清清，凄凄惨惨戚戚。\n乍暖还寒时候，最难将息。\n三杯两盏淡酒，怎敌他、晚来风急？\n雁过也，正伤心，却是旧时相识。' },
+  { title: '将进酒', author: '李白', dynasty: '唐代', type: '乐府诗', preview: '君不见黄河之水天上来，奔流到海不复回。君不见高堂明镜悲白发...', content: '君不见黄河之水天上来，奔流到海不复回。\n君不见高堂明镜悲白发，朝如青丝暮成雪。\n人生得意须尽欢，莫使金樽空对月。\n天生我材必有用，千金散尽还复来。' },
+  { title: '春望', author: '杜甫', dynasty: '唐代', type: '五言律诗', preview: '国破山河在，城春草木深。感时花溅泪，恨别鸟惊心...', content: '国破山河在，城春草木深。\n感时花溅泪，恨别鸟惊心。\n烽火连三月，家书抵万金。\n白头搔更短，浑欲不胜簪。' },
+  { title: '青玉案·元夕', author: '辛弃疾', dynasty: '宋代', type: '宋词', preview: '东风夜放花千树，更吹落、星如雨。宝马雕车香满路...', content: '东风夜放花千树，更吹落、星如雨。\n宝马雕车香满路。\n凤箫声动，玉壶光转，一夜鱼龙舞。\n蛾儿雪柳黄金缕，笑语盈盈暗香去。\n众里寻他千百度，蓦然回首，那人却在，灯火阑珊处。' },
+];
+
+const searchResults = [
+  { title: '静夜思', author: '李白', dynasty: '唐代', snippet: '床前<mark>明月</mark>光，疑是地上霜。\n举头望<mark>明月</mark>，低头思故乡。' },
+  { title: '水调歌头·明月几时有', author: '苏轼', dynasty: '宋代', snippet: '<mark>明月</mark>几时有？把酒问青天。\n不知天上宫阙，今夕是何年。\n我欲乘风归去，又恐琼楼玉宇，高处不胜寒。' },
+  { title: '山居秋暝', author: '王维', dynasty: '唐代', snippet: '空山新雨后，天气晚来秋。\n<mark>明月</mark>松间照，清泉石上流。\n竹喧归浣女，莲动下渔舟。' },
+  { title: '春江花月夜', author: '张若虚', dynasty: '唐代', snippet: '春江潮水连海平，海上<mark>明月</mark>共潮生。\n滟滟随波千万里，何处春江无月明！' },
+  { title: '月下独酌', author: '李白', dynasty: '唐代', snippet: '花间一壶酒，独酌无相亲。\n举杯邀<mark>明月</mark>，对影成三人。\n月既不解饮，影徒随我身。' },
+  { title: '望月怀远', author: '张九龄', dynasty: '唐代', snippet: '海上生<mark>明月</mark>，天涯共此时。\n情人怨遥夜，竟夕起相思。\n灭烛怜光满，披衣觉露滋。' },
+];
+
+/* ========================================
+   Page Toggle
+   ======================================== */
+const pageTabs = document.querySelectorAll('.page-tab');
+const listPage = document.getElementById('listPage');
+const searchPage = document.getElementById('searchPage');
+const mainSearch = document.getElementById('mainSearch');
+
+pageTabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    pageTabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    const page = tab.dataset.page;
+    if (page === 'list') {
+      listPage.classList.remove('hidden');
+      listPage.style.display = 'flex';
+      searchPage.classList.remove('active');
+      searchPage.style.display = 'none';
+      mainSearch.value = '';
+      mainSearch.placeholder = '搜索诗词、作者、内容...';
+      updateClearBtn();
+    } else {
+      listPage.classList.add('hidden');
+      listPage.style.display = 'none';
+      searchPage.classList.add('active');
+      searchPage.style.display = 'flex';
+      mainSearch.value = '明月';
+      mainSearch.placeholder = '搜索诗词、作者、内容...';
+      updateClearBtn();
+    }
+  });
+});
+
+/* ========================================
+   Search Box Clear Button
+   ======================================== */
+const clearBtn = document.getElementById('mainSearchClear');
+
+function updateClearBtn() {
+  if (mainSearch.value.length > 0) {
+    clearBtn.classList.add('visible');
+  } else {
+    clearBtn.classList.remove('visible');
+  }
+}
+
+mainSearch.addEventListener('input', updateClearBtn);
+
+clearBtn.addEventListener('click', () => {
+  mainSearch.value = '';
+  updateClearBtn();
+  mainSearch.focus();
+});
+
+/* ========================================
+   Filter Tags
+   ======================================== */
+document.querySelectorAll('.filter-tags').forEach(group => {
+  const tags = group.querySelectorAll('.filter-tag');
+
+  tags.forEach(tag => {
+    tag.addEventListener('click', () => {
+      const value = tag.dataset.value;
+      const isAll = value === 'all';
+
+      if (isAll) {
+        // Select only "all", deselect others
+        tags.forEach(t => t.classList.remove('active'));
+        tag.classList.add('active');
+      } else {
+        // Deselect "all"
+        const allTag = group.querySelector('[data-value="all"]');
+        if (allTag) allTag.classList.remove('active');
+
+        // Toggle this tag
+        tag.classList.toggle('active');
+
+        // If nothing selected, select "all"
+        const anyActive = group.querySelector('.filter-tag.active');
+        if (!anyActive && allTag) {
+          allTag.classList.add('active');
+        }
+      }
+
+      updateActiveFilterCount();
+    });
+  });
+});
+
+function updateActiveFilterCount() {
+  let count = 0;
+  document.querySelectorAll('.filter-tags').forEach(group => {
+    const activeTags = group.querySelectorAll('.filter-tag.active');
+    activeTags.forEach(tag => {
+      if (tag.dataset.value !== 'all') count++;
+    });
+  });
+
+  const badge = document.getElementById('activeFilterCount');
+  if (count > 0) {
+    badge.textContent = count;
+    badge.classList.add('show');
+  } else {
+    badge.classList.remove('show');
+  }
+}
+
+/* ========================================
+   Clear All Filters
+   ======================================== */
+document.getElementById('clearAllFilters').addEventListener('click', () => {
+  document.querySelectorAll('.filter-tags').forEach(group => {
+    group.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+    const allTag = group.querySelector('[data-value="all"]');
+    if (allTag) allTag.classList.add('active');
+  });
+  updateActiveFilterCount();
+});
+
+/* ========================================
+   Author Search Filter
+   ======================================== */
+const authorSearch = document.getElementById('authorSearch');
+authorSearch.addEventListener('input', () => {
+  const query = authorSearch.value.toLowerCase().trim();
+  const authorGroup = document.querySelector('[data-filter-group="author"]');
+  const tags = authorGroup.querySelectorAll('.filter-tag:not([data-value="all"])');
+
+  tags.forEach(tag => {
+    const name = tag.textContent.replace(/✓/g, '').trim();
+    if (query === '' || name.toLowerCase().includes(query)) {
+      tag.style.display = '';
+    } else {
+      tag.style.display = 'none';
+    }
+  });
+});
+
+/* ========================================
+   Sort Buttons
+   ======================================== */
+document.querySelectorAll('.sort-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+/* ========================================
+   Render Poetry List
+   ======================================== */
+function renderPoetryList(data) {
+  const container = document.getElementById('poetryList');
+  container.innerHTML = data.map(poem => `
+    <a href="#" class="poetry-card">
+      <div class="card-title">${poem.title}</div>
+      <div class="card-meta">
+        <span>${poem.author}</span>
+        <span class="dot"></span>
+        <span>${poem.dynasty}</span>
+        <span class="card-tag">${poem.type}</span>
+      </div>
+      <div class="card-preview">${poem.preview}</div>
+    </a>
+  `).join('');
+}
+
+/* ========================================
+   Render Search Results
+   ======================================== */
+function renderSearchResults(data) {
+  const container = document.getElementById('searchResultList');
+  container.innerHTML = data.map(poem => `
+    <a href="#" class="search-result-item">
+      <div class="result-title">${poem.title}</div>
+      <div class="result-meta">${poem.author} · ${poem.dynasty}</div>
+      <div class="result-snippet">${poem.snippet.replace(/\n/g, '<br>')}</div>
+    </a>
+  `).join('');
+}
+
+/* ========================================
+   Empty State Toggle
+   ======================================== */
+function showEmptyState(keyword) {
+  const emptyState = document.getElementById('emptyState');
+  const resultList = document.getElementById('searchResultList');
+  const keywordSpan = emptyState.querySelector('.empty-keyword');
+  keywordSpan.textContent = `「${keyword}」`;
+  emptyState.classList.add('visible');
+  resultList.innerHTML = '';
+}
+
+function hideEmptyState() {
+  document.getElementById('emptyState').classList.remove('visible');
+}
+
+/* ========================================
+   Load More (demo)
+   ======================================== */
+const morePoems = [
+  { title: '赤壁赋', author: '苏轼', dynasty: '宋代', type: '宋词', preview: '壬戌之秋，七月既望，苏子与客泛舟游于赤壁之下...', content: '壬戌之秋，七月既望，苏子与客泛舟游于赤壁之下。清风徐来，水波不兴。' },
+  { title: '琵琶行', author: '白居易', dynasty: '唐代', type: '乐府诗', preview: '浔阳江头夜送客，枫叶荻花秋瑟瑟。主人下马客在船...', content: '浔阳江头夜送客，枫叶荻花秋瑟瑟。主人下马客在船，举酒欲饮无管弦。' },
+  { title: '天净沙·秋思', author: '马致远', dynasty: '元代', type: '元曲', preview: '枯藤老树昏鸦，小桥流水人家，古道西风瘦马...', content: '枯藤老树昏鸦，小桥流水人家，古道西风瘦马。夕阳西下，断肠人在天涯。' },
+  { title: '锦瑟', author: '李商隐', dynasty: '唐代', type: '七言律诗', preview: '锦瑟无端五十弦，一弦一柱思华年。庄生晓梦迷蝴蝶...', content: '锦瑟无端五十弦，一弦一柱思华年。庄生晓梦迷蝴蝶，望帝春心托杜鹃。' },
+];
+
+let loadedMore = false;
+document.getElementById('loadMoreBtn').addEventListener('click', () => {
+  if (loadedMore) return;
+  loadedMore = true;
+
+  const btn = document.getElementById('loadMoreBtn');
+  btn.textContent = '加载中...';
+  btn.disabled = true;
+
+  setTimeout(() => {
+    const container = document.getElementById('poetryList');
+    const moreHtml = morePoems.map((poem, i) => `
+      <a href="#" class="poetry-card" style="animation-delay: ${i * 0.04}s">
+        <div class="card-title">${poem.title}</div>
+        <div class="card-meta">
+          <span>${poem.author}</span>
+          <span class="dot"></span>
+          <span>${poem.dynasty}</span>
+          <span class="card-tag">${poem.type}</span>
+        </div>
+        <div class="card-preview">${poem.preview}</div>
+      </a>
+    `).join('');
+    container.insertAdjacentHTML('beforeend', moreHtml);
+    btn.textContent = '已加载全部';
+    btn.style.opacity = '0.5';
+    btn.style.cursor = 'default';
+  }, 600);
+});
+
+/* ========================================
+   Initialize
+   ======================================== */
+renderPoetryList(poetryData);
+renderSearchResults(searchResults);
+</script>
+
+</body>
+</html>
